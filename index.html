@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0d7377">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Pack & Go</title>
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/icon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="mobile.css" media="(max-width: 1023px)">
+    <link rel="stylesheet" href="desktop.css" media="(min-width: 1024px)">
+</head>
+<body>
+    <!-- BACKGROUND DINAMICO -->
+    <div id="bg-layer" class="bg-layer"></div>
+
+    <!-- ========== SCHERMATA BENVENUTO ========== -->
+    <div id="welcome-screen" class="screen">
+        <div class="welcome-content">
+            <div class="welcome-icon">🧳</div>
+            <h1>Pack & Go</h1>
+            <p>Organizza i tuoi bagagli per ogni tipo di viaggio</p>
+            <button id="btn-start" class="btn-primary">
+                <span>Inizia</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ========== SCHERMATA HOME ========== -->
+    <div id="home-screen" class="screen hidden">
+        <header class="header">
+            <div class="header-brand">
+                <span class="header-icon">🧳</span>
+                <h1>Pack & Go</h1>
+            </div>
+            <div class="header-actions">
+                <button id="btn-settings" class="icon-btn" title="Gestione Oggetti">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <main class="home-content">
+            <!-- Pulsante principale -->
+            <button id="btn-new-trip" class="btn-pack">
+                <div class="btn-pack-icon">🎒</div>
+                <div class="btn-pack-text">
+                    <span class="btn-pack-title">Prepara Valigia</span>
+                    <span class="btn-pack-subtitle">Inizia un nuovo viaggio</span>
+                </div>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </button>
+
+            <!-- Viaggio in corso -->
+            <section id="active-trip-section" class="section hidden">
+                <h2 class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    Viaggio in Corso
+                </h2>
+                <button id="btn-continue-trip" class="btn-continue">
+                    <div class="btn-continue-info">
+                        <span id="continue-trip-icon" class="trip-badge">🚗</span>
+                        <div>
+                            <span id="continue-trip-name" class="trip-name">Nome viaggio</span>
+                            <span id="continue-trip-progress" class="trip-progress-text">0/0 oggetti</span>
+                        </div>
+                    </div>
+                    <span class="btn-continue-label">Continua</span>
+                </button>
+            </section>
+
+            <!-- Viaggi salvati -->
+            <section id="saved-trips-section" class="section hidden">
+                <h2 class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                    </svg>
+                    Viaggi Salvati
+                </h2>
+                <div id="saved-trips-list" class="saved-trips-list">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+        </main>
+
+        <footer class="home-footer">
+            <button id="btn-import" class="footer-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                </svg>
+                Importa
+            </button>
+            <button id="btn-export" class="footer-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                </svg>
+                Esporta
+            </button>
+        </footer>
+        <p class="credits">Fatto con ❤️ da PwR per scopo didattico e per chi ama viaggiare</p>
+    </div>
+
+    <!-- ========== SCHERMATA VIAGGIO ATTIVO ========== -->
+    <div id="trip-screen" class="screen hidden">
+        <header class="header">
+            <button id="btn-back-home" class="icon-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="header-trip-info">
+                <span id="trip-icon" class="trip-badge-sm">🚗</span>
+                <span id="trip-title" class="header-title">Nome Viaggio</span>
+            </div>
+            <button id="btn-trip-menu" class="icon-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
+                </svg>
+            </button>
+        </header>
+
+        <!-- Progress bar -->
+        <div class="trip-progress-bar">
+            <div class="progress-info">
+                <span>Progresso</span>
+                <span id="progress-text">0/0</span>
+            </div>
+            <div class="progress-track">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+        </div>
+
+        <!-- Checklist -->
+        <main id="trip-checklist" class="trip-checklist">
+            <!-- Populated by JS - categorie collassabili -->
+        </main>
+
+        <!-- Menu viaggio (dropdown) -->
+        <div id="trip-menu" class="dropdown-menu hidden">
+            <button id="btn-save-template" class="dropdown-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                </svg>
+                Salva come template
+            </button>
+            <button id="btn-end-trip" class="dropdown-item danger">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+                Termina viaggio
+            </button>
+        </div>
+    </div>
+
+    <!-- ========== SCHERMATA GESTIONE OGGETTI ========== -->
+    <div id="settings-screen" class="screen hidden">
+        <header class="header">
+            <button id="btn-back-settings" class="icon-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h1 class="header-title">Gestione Oggetti</h1>
+            <div class="header-actions">
+                <button id="btn-reset-all" class="icon-btn danger" title="Reset Tutto">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/>
+                    </svg>
+                </button>
+                <button id="btn-add-category" class="icon-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <main id="settings-content" class="settings-content">
+            <!-- Categorie collassabili con oggetti -->
+        </main>
+    </div>
+
+    <!-- ========== MODALS ========== -->
+
+    <!-- Modal: Nuovo Viaggio -->
+    <div id="modal-new-trip" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nuovo Viaggio</h3>
+                <button class="modal-close" data-close>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="input-trip-name">Nome del viaggio</label>
+                <input type="text" id="input-trip-name" placeholder="es. Weekend Roma, Vacanza Grecia..." maxlength="40">
+                
+                <label class="label-mt">Tipo di viaggio</label>
+                <div class="trip-type-selector">
+                    <label class="trip-option">
+                        <input type="radio" name="trip-type" value="car">
+                        <span class="trip-option-card">
+                            <span class="trip-emoji">🚗</span>
+                            <span class="trip-label">Auto</span>
+                        </span>
+                    </label>
+                    <label class="trip-option">
+                        <input type="radio" name="trip-type" value="europe">
+                        <span class="trip-option-card">
+                            <span class="trip-emoji">🇪🇺</span>
+                            <span class="trip-label">Europa</span>
+                        </span>
+                    </label>
+                    <label class="trip-option">
+                        <input type="radio" name="trip-type" value="world">
+                        <span class="trip-option-card">
+                            <span class="trip-emoji">🌍</span>
+                            <span class="trip-label">Mondo</span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" data-close>Annulla</button>
+                <button id="btn-start-trip" class="btn-primary">Parti! 🚀</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Usa Template -->
+    <div id="modal-use-template" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Usa Template</h3>
+                <button class="modal-close" data-close>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="template-info">Vuoi riutilizzare questo viaggio?</p>
+                <label for="input-template-name" class="label-mt">Nome del nuovo viaggio</label>
+                <input type="text" id="input-template-name" placeholder="Nuovo nome..." maxlength="40">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" data-close>Annulla</button>
+                <button id="btn-use-template" class="btn-primary">Usa Template</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Salva Template -->
+    <div id="modal-save-template" class="modal hidden">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3>Salva Template</h3>
+                <button class="modal-close" data-close>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Salvare questo viaggio come template per riutilizzarlo in futuro?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" data-close>Annulla</button>
+                <button id="btn-confirm-save-template" class="btn-primary">Salva</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Aggiungi Categoria -->
+    <div id="modal-category" class="modal hidden">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3>Nuova Categoria</h3>
+                <button class="modal-close" data-close>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="input-category">Nome categoria</label>
+                <input type="text" id="input-category" placeholder="es. Documenti, Elettronica..." maxlength="30">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" data-close>Annulla</button>
+                <button id="btn-save-category" class="btn-primary">Salva</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Aggiungi Oggetto -->
+    <div id="modal-item" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nuovo Oggetto</h3>
+                <button class="modal-close" data-close>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="input-item">Nome oggetto</label>
+                <input type="text" id="input-item" placeholder="es. Passaporto, Caricatore..." maxlength="50">
+                
+                <label class="label-mt">Includi in</label>
+                <div class="item-type-checkboxes">
+                    <label class="type-check">
+                        <input type="checkbox" id="check-car" checked>
+                        <span>🚗 Auto</span>
+                    </label>
+                    <label class="type-check">
+                        <input type="checkbox" id="check-europe" checked>
+                        <span>🇪🇺 Europa</span>
+                    </label>
+                    <label class="type-check">
+                        <input type="checkbox" id="check-world" checked>
+                        <span>🌍 Mondo</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" data-close>Annulla</button>
+                <button id="btn-save-item" class="btn-primary">Salva</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Conferma -->
+    <div id="modal-confirm" class="modal hidden">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3 id="confirm-title">Conferma</h3>
+                <button class="modal-close" data-close>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">Sei sicuro?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" data-close>Annulla</button>
+                <button id="btn-confirm" class="btn-danger">Conferma</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Hidden file input -->
+    <input type="file" id="file-input" accept=".packgo,.json" hidden>
+
+    <script src="https://unpkg.com/dexie@3.2.4/dist/dexie.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
