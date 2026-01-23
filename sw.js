@@ -14,9 +14,7 @@ const ASSETS = [
     './img/car.png',
     './img/europe.png',
     './img/world.png',
-    './img/desktop.png',
-    'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap',
-    'https://unpkg.com/dexie@3.2.4/dist/dexie.min.js'
+    './img/desktop.png'
 ];
 
 // Install
@@ -40,8 +38,25 @@ self.addEventListener('activate', (e) => {
     );
 });
 
-// Fetch
+// Fetch - Network first for external, cache first for local
 self.addEventListener('fetch', (e) => {
+    const url = new URL(e.request.url);
+    
+    // External resources (fonts, CDN) - network first
+    if (url.origin !== location.origin) {
+        e.respondWith(
+            fetch(e.request)
+                .then(response => {
+                    const clone = response.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+                    return response;
+                })
+                .catch(() => caches.match(e.request))
+        );
+        return;
+    }
+    
+    // Local resources - cache first
     e.respondWith(
         caches.match(e.request)
             .then(response => response || fetch(e.request))
