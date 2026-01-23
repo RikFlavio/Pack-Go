@@ -4,7 +4,7 @@
 
 Pack & Go è una web app per gestire le checklist dei bagagli in modo semplice e intuitivo. Perfetta per chi viaggia spesso e vuole assicurarsi di non dimenticare nulla.
 
-![Pack & Go Preview](.img/logo_pack_and_go.png)
+![Pack & Go Preview](img/logo_pack_and_go.png)
 
 ## ✨ Funzionalità
 
