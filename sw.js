@@ -3,6 +3,7 @@ const ASSETS = [
     './',
     './index.html',
     './app.js',
+    './dexie.min.js',
     './mobile.css',
     './desktop.css',
     './site.webmanifest',

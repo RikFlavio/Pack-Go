@@ -236,7 +236,7 @@ function setupEventListeners() {
     // Trip Screen
     el.btnBackHome.addEventListener('click', () => showScreen('home'));
     el.btnTripMenu.addEventListener('click', toggleTripMenu);
-    el.btnSaveTemplate.addEventListener('click', () => { closeTripMenu(); openModal('save-template'); });
+    el.btnSaveTemplate.addEventListener('click', () => { closeTripMenu(); saveAsTemplate(); });
     el.btnEndTrip.addEventListener('click', () => { closeTripMenu(); confirmEndTrip(); });
     
     // Settings Screen
@@ -442,14 +442,17 @@ function renderTrip() {
         }
     });
     
+    const hasExpanded = state.expandedCategories.size > 0;
+    
     // Render categorie collassabili
     el.tripChecklist.innerHTML = Object.entries(grouped).map(([catId, cat]) => {
         const catPacked = cat.items.filter(i => packedItems.includes(i.id)).length;
         const isExpanded = state.expandedCategories.has(parseInt(catId));
+        const isHidden = hasExpanded && !isExpanded;
         const allPacked = catPacked === cat.items.length;
         
         return `
-            <div class="checklist-category ${allPacked ? 'completed' : ''}">
+            <div class="checklist-category ${allPacked ? 'completed' : ''} ${isExpanded ? 'expanded' : ''} ${isHidden ? 'hidden-by-expand' : ''}">
                 <div class="checklist-header" onclick="toggleCategory(${catId})">
                     <div class="checklist-header-left">
                         <svg class="chevron ${isExpanded ? 'expanded' : ''}" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -475,6 +478,13 @@ function renderTrip() {
         `;
     }).join('');
     
+    // Aggiorna classe container
+    if (hasExpanded) {
+        el.tripChecklist.classList.add('has-expanded');
+    } else {
+        el.tripChecklist.classList.remove('has-expanded');
+    }
+    
     // Messaggio se tutto completato
     if (packed === total && total > 0) {
         showToast('🎉 Tutto pronto! Buon viaggio!', 'success');
@@ -483,11 +493,16 @@ function renderTrip() {
 
 window.toggleCategory = function(catId) {
     catId = parseInt(catId);
-    if (state.expandedCategories.has(catId)) {
-        state.expandedCategories.delete(catId);
-    } else {
+    const wasExpanded = state.expandedCategories.has(catId);
+    
+    // Chiudi tutte le categorie espanse
+    state.expandedCategories.clear();
+    
+    // Se non era espansa, aprila
+    if (!wasExpanded) {
         state.expandedCategories.add(catId);
     }
+    
     renderTrip();
 };
 
@@ -528,33 +543,18 @@ async function saveAsTemplate() {
     });
     
     state.savedTrips = await db.savedTrips.toArray();
-    closeModal('save-template');
+    closeTripMenu();
     showToast('Template salvato!', 'success');
 }
 
 function confirmEndTrip() {
-    // Prima chiedo se vuole salvare come template
-    showConfirm('Termina viaggio', 'Vuoi salvare questo viaggio come template prima di terminarlo?', 
-        async () => {
-            // Sì, salva e termina
-            await saveAsTemplate();
-            await endTrip();
-        },
-        async () => {
-            // No, termina senza salvare
-            await endTrip();
-        },
-        'Salva e termina',
-        'Termina senza salvare'
-    );
-}
-
-async function endTrip() {
-    await db.activeTrip.clear();
-    state.activeTrip = null;
-    state.expandedCategories.clear();
-    showScreen('home');
-    showToast('Viaggio terminato', 'success');
+    showConfirm('Termina viaggio', 'Vuoi terminare questo viaggio?', async () => {
+        await db.activeTrip.clear();
+        state.activeTrip = null;
+        state.expandedCategories.clear();
+        showScreen('home');
+        showToast('Viaggio terminato', 'success');
+    });
 }
 
 // =====================================================
@@ -623,11 +623,17 @@ function renderSettings() {
         }
     });
     
-    el.settingsContent.innerHTML = Object.values(grouped).map(cat => `
-        <div class="settings-category">
+    const hasExpanded = state.expandedCategories.size > 0;
+    
+    el.settingsContent.innerHTML = Object.values(grouped).map(cat => {
+        const isExpanded = state.expandedCategories.has(cat.id);
+        const isHidden = hasExpanded && !isExpanded;
+        
+        return `
+        <div class="settings-category ${isExpanded ? 'expanded' : ''} ${isHidden ? 'hidden-by-expand' : ''}">
             <div class="settings-category-header" onclick="toggleSettingsCategory(${cat.id})">
                 <div class="settings-category-left">
-                    <svg class="chevron ${state.expandedCategories.has(cat.id) ? 'expanded' : ''}" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="chevron ${isExpanded ? 'expanded' : ''}" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 18l6-6-6-6"/>
                     </svg>
                     <h4>${cat.name}</h4>
@@ -646,7 +652,7 @@ function renderSettings() {
                     </button>
                 </div>
             </div>
-            <div class="settings-items ${state.expandedCategories.has(cat.id) ? '' : 'collapsed'}">
+            <div class="settings-items ${isExpanded ? '' : 'collapsed'}">
                 ${cat.items.map(item => `
                     <div class="settings-item">
                         <span class="item-name">${item.name}</span>
@@ -665,17 +671,38 @@ function renderSettings() {
                 ${cat.items.length === 0 ? '<p class="empty-text">Nessun oggetto</p>' : ''}
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
+    
+    // Aggiorna classe container
+    if (hasExpanded) {
+        el.settingsContent.classList.add('has-expanded');
+    } else {
+        el.settingsContent.classList.remove('has-expanded');
+    }
 }
 
 window.toggleSettingsCategory = function(catId) {
     catId = parseInt(catId);
-    if (state.expandedCategories.has(catId)) {
-        state.expandedCategories.delete(catId);
-    } else {
+    const wasExpanded = state.expandedCategories.has(catId);
+    
+    // Chiudi tutte le categorie espanse
+    state.expandedCategories.clear();
+    
+    // Se non era espansa, aprila
+    if (!wasExpanded) {
         state.expandedCategories.add(catId);
     }
+    
     renderSettings();
+    
+    // Aggiorna classe sul container
+    const container = document.getElementById('settings-content');
+    if (state.expandedCategories.size > 0) {
+        container.classList.add('has-expanded');
+    } else {
+        container.classList.remove('has-expanded');
+    }
 };
 
 window.openAddItem = function(catId) {
