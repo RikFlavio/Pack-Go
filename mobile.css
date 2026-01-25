@@ -351,6 +351,25 @@ body {
 }
 .type-check input { width: 18px; height: 18px; accent-color: var(--accent); }
 
+.category-select-row { display: flex; gap: 10px; align-items: center; }
+.category-select-row select {
+    flex: 1; padding: 14px 16px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm); color: var(--text); font-family: inherit; font-size: 15px;
+}
+.category-select-row select:focus { outline: none; border-color: var(--accent); }
+.category-select-row select:disabled { opacity: 0.5; }
+.btn-icon-inline {
+    width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;
+    background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-sm);
+    color: var(--accent); cursor: pointer;
+}
+.new-cat-inline { margin-top: 10px; }
+.new-cat-inline input {
+    width: 100%; padding: 14px 16px; background: rgba(0,0,0,0.3); border: 1px solid var(--accent);
+    border-radius: var(--radius-sm); color: var(--text); font-family: inherit; font-size: 15px;
+}
+.new-cat-inline input:focus { outline: none; }
+
 /* Toast */
 .toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);

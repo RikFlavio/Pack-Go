@@ -243,6 +243,9 @@ function setupEventListeners() {
     el.btnBackSettings.addEventListener('click', () => showScreen('home'));
     el.btnAddCategory.addEventListener('click', () => openModal('category'));
     document.getElementById('btn-reset-all').addEventListener('click', resetAll);
+    document.getElementById('btn-add-item-global').addEventListener('click', openAddItemGlobal);
+    document.getElementById('btn-new-cat-inline').addEventListener('click', toggleNewCatInline);
+    document.getElementById('select-category').addEventListener('change', onCategorySelectChange);
     
     // Modal buttons
     el.btnStartTrip.addEventListener('click', startTrip);
@@ -710,8 +713,59 @@ window.openAddItem = function(catId) {
     el.checkCar.checked = true;
     el.checkEurope.checked = true;
     el.checkWorld.checked = true;
+    el.inputItem.value = '';
+    
+    // Nascondi selezione categoria (già selezionata)
+    document.getElementById('category-select-wrapper').classList.add('hidden');
+    document.getElementById('new-cat-inline').classList.add('hidden');
+    
     openModal('item');
 };
+
+function openAddItemGlobal() {
+    state.currentCategoryId = null;
+    el.checkCar.checked = true;
+    el.checkEurope.checked = true;
+    el.checkWorld.checked = true;
+    el.inputItem.value = '';
+    
+    // Mostra selezione categoria
+    const wrapper = document.getElementById('category-select-wrapper');
+    wrapper.classList.remove('hidden');
+    
+    // Popola dropdown categorie
+    const select = document.getElementById('select-category');
+    select.innerHTML = state.categories.map(cat => 
+        `<option value="${cat.id}">${cat.name}</option>`
+    ).join('');
+    
+    // Nascondi input nuova categoria
+    document.getElementById('new-cat-inline').classList.add('hidden');
+    
+    openModal('item');
+}
+
+function toggleNewCatInline() {
+    const newCatDiv = document.getElementById('new-cat-inline');
+    const select = document.getElementById('select-category');
+    const input = document.getElementById('input-new-cat-inline');
+    
+    if (newCatDiv.classList.contains('hidden')) {
+        newCatDiv.classList.remove('hidden');
+        select.disabled = true;
+        input.focus();
+    } else {
+        newCatDiv.classList.add('hidden');
+        select.disabled = false;
+        input.value = '';
+    }
+}
+
+function onCategorySelectChange() {
+    // Se seleziona una categoria, nascondi input nuova
+    document.getElementById('new-cat-inline').classList.add('hidden');
+    document.getElementById('input-new-cat-inline').value = '';
+}
 
 async function saveCategory() {
     const name = el.inputCategory.value.trim();
@@ -734,10 +788,32 @@ async function saveCategory() {
 async function saveItem() {
     const name = el.inputItem.value.trim();
     if (!name) { showToast('Inserisci un nome', 'error'); return; }
-    if (!state.currentCategoryId) { showToast('Errore: categoria non selezionata', 'error'); return; }
+    
+    let categoryId = state.currentCategoryId;
+    
+    // Se non c'è categoria preselezionata, prendi da dropdown o crea nuova
+    if (!categoryId) {
+        const newCatInput = document.getElementById('input-new-cat-inline');
+        const newCatName = newCatInput.value.trim();
+        
+        if (newCatName) {
+            // Crea nuova categoria
+            if (state.categories.some(c => c.name.toLowerCase() === newCatName.toLowerCase())) {
+                showToast('Categoria già esistente', 'error');
+                return;
+            }
+            categoryId = await db.categories.add({ name: newCatName, order: state.categories.length });
+            state.categories.push({ id: categoryId, name: newCatName, order: state.categories.length });
+        } else {
+            // Usa categoria selezionata
+            categoryId = parseInt(document.getElementById('select-category').value);
+        }
+    }
+    
+    if (!categoryId) { showToast('Seleziona una categoria', 'error'); return; }
     
     const item = {
-        categoryId: state.currentCategoryId,
+        categoryId: categoryId,
         name,
         car: el.checkCar.checked,
         europe: el.checkEurope.checked,
@@ -749,6 +825,7 @@ async function saveItem() {
     
     closeModal('item');
     el.inputItem.value = '';
+    document.getElementById('input-new-cat-inline').value = '';
     state.currentCategoryId = null;
     renderSettings();
     showToast('Oggetto aggiunto', 'success');
